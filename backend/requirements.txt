@@ -4,3 +4,5 @@ qdrant-client
 whoosh
 langchain
 sentence-transformers
+loguru
+python-dotenv
