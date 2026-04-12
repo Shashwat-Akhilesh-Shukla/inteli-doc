@@ -3,6 +3,9 @@ uvicorn
 qdrant-client
 whoosh
 langchain
+langchain-community
 sentence-transformers
 loguru
 python-dotenv
+pypdf
+beautifulsoup4
