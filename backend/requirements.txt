@@ -11,3 +11,4 @@ pypdf
 beautifulsoup4
 langgraph
 langchain-openai
+slowapi
