@@ -1,0 +1,221 @@
+.panel {
+  width: 260px;
+  flex-shrink: 0;
+  padding: var(--space-lg);
+  border-left: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.015);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  overflow-y: auto;
+  animation: fadeIn 0.5s var(--ease-out);
+}
+
+.panelTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.panelTitleIcon {
+  font-size: 1rem;
+}
+
+/* ---- Stepper ---- */
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  position: relative;
+}
+
+/* Vertical connector line */
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: calc(var(--space-md) + 30px);
+  bottom: 0;
+  width: 2px;
+  background: var(--glass-border);
+  transition: background var(--transition-normal);
+}
+
+.step[data-status='done']:not(:last-child)::after {
+  background: var(--status-success);
+}
+
+.step[data-status='active']:not(:last-child)::after {
+  background: linear-gradient(to bottom, var(--accent-violet), var(--glass-border));
+}
+
+/* Step indicator circle */
+.indicator {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  border: 2px solid var(--glass-border);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  transition: all var(--transition-normal);
+  position: relative;
+  z-index: 1;
+}
+
+.step[data-status='active'] .indicator {
+  border-color: var(--accent-violet);
+  color: var(--accent-violet);
+  background: rgba(124, 58, 237, 0.1);
+  animation: stepGlow 2s ease-in-out infinite;
+}
+
+.step[data-status='done'] .indicator {
+  border-color: var(--status-success);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--status-success);
+}
+
+.step[data-status='error'] .indicator {
+  border-color: var(--status-error);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--status-error);
+}
+
+/* Step text content */
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.stepLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color var(--transition-normal);
+}
+
+.step[data-status='active'] .stepLabel {
+  color: var(--text-primary);
+}
+
+.step[data-status='done'] .stepLabel {
+  color: var(--status-success);
+}
+
+.stepDescription {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+
+/* ---- Spinner for active state ---- */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(124, 58, 237, 0.2);
+  border-top-color: var(--accent-violet);
+  border-radius: 50%;
+  animation: spinSlow 0.8s linear infinite;
+}
+
+/* ---- Info Section ---- */
+.infoSection {
+  margin-top: auto;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--glass-border);
+}
+
+.infoLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.infoValue {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* ---- Mobile: Collapsible ---- */
+.mobileToggle {
+  display: none;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.mobileToggle:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-bright);
+}
+
+.mobileWrapper {
+  display: contents;
+}
+
+@media (max-width: 900px) {
+  .panel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--glass-border);
+    padding: var(--space-md);
+  }
+
+  .mobileToggle {
+    display: block;
+  }
+
+  .mobileWrapper {
+    display: block;
+  }
+
+  .mobileContent {
+    overflow: hidden;
+    transition: max-height var(--transition-slow), opacity var(--transition-normal);
+  }
+
+  .mobileContent[data-open='false'] {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mobileContent[data-open='true'] {
+    max-height: 500px;
+    opacity: 1;
+  }
+}
