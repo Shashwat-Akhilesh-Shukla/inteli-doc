@@ -29,7 +29,9 @@ logger.add(
     enqueue=True,
 )
 
-def get_logger():
+def get_logger(name: str = None):
+    if name:
+        return logger.bind(name=name)
     return logger
 
 app_logger = get_logger()

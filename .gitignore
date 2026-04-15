@@ -2,3 +2,7 @@
 !README.md
 !readme.md
 *__pycache__
+.env
+*.venv
+*.env.local
+*.env.example

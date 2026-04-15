@@ -7,7 +7,7 @@ from backend.utils.logger import get_logger
 
 logger = get_logger()
 
-INDEX_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "whoosh_index")
+INDEX_DIR = os.path.join(os.path.dirname(__file__), "..", "whoosh_index")
 
 class SparseRetriever:
     """
