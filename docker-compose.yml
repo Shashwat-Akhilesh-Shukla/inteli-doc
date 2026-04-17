@@ -11,8 +11,10 @@ services:
       - ./backend:/app
     environment:
       - ENVIRONMENT=development
+      - REDIS_HOST=redis
     depends_on:
       - qdrant
+      - redis
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -20,6 +22,11 @@ services:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
 
 volumes:
   qdrant_data:
