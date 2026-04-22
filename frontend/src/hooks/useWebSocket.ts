@@ -77,6 +77,12 @@ export function useWebSocket(): UseWebSocketReturn {
             setIsStreaming(false);
             break;
 
+          case 'phase':
+            if (typeof chunk.content === 'string') {
+              setAgentPhase(chunk.content as AgentPhase);
+            }
+            break;
+
           case 'error':
             setError(typeof chunk.content === 'string' ? chunk.content : 'An unknown error occurred.');
             setAgentPhase('error');
@@ -123,12 +129,8 @@ export function useWebSocket(): UseWebSocketReturn {
     setError(null);
     setIsStreaming(true);
 
-    // Simulate agentic phase transitions on the client side.
-    // The backend processes synchronously before streaming, so we animate:
-    //   routing (0ms) -> retrieving (600ms) -> evaluating (1200ms) -> [generating starts on first token]
+    // Set an initial starting phase
     setAgentPhase('routing');
-    setTimeout(() => setAgentPhase(prev => prev === 'routing' ? 'retrieving' : prev), 600);
-    setTimeout(() => setAgentPhase(prev => prev === 'retrieving' ? 'evaluating' : prev), 1200);
 
     wsRef.current.send(query);
   }, []);

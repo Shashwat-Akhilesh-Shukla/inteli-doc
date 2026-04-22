@@ -8,6 +8,7 @@ export type AgentPhase =
   | 'routing'
   | 'retrieving'
   | 'evaluating'
+  | 'rewriting'
   | 'generating'
   | 'complete'
   | 'error';
@@ -35,6 +36,6 @@ export interface CitationMeta {
 
 /** Shape of a single chunk received over the WebSocket */
 export interface WSChunk {
-  type: 'token' | 'metadata' | 'error';
+  type: 'token' | 'metadata' | 'error' | 'phase';
   content: string | Record<string, CitationMeta>;
 }

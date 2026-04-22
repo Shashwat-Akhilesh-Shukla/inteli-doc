@@ -37,6 +37,13 @@ const STEPS: StepDef[] = [
     doneIcon: '✓',
   },
   {
+    key: 'rewriting',
+    label: 'Rewriting',
+    description: 'Refining query for better results',
+    icon: '📝',
+    doneIcon: '✓',
+  },
+  {
     key: 'generating',
     label: 'Generating',
     description: 'Streaming LLM response',
@@ -51,9 +58,10 @@ const PHASE_ORDER: Record<string, number> = {
   routing: 0,
   retrieving: 1,
   evaluating: 2,
-  generating: 3,
-  complete: 4,
-  error: 4,
+  rewriting: 3,
+  generating: 4,
+  complete: 5,
+  error: 5,
 };
 
 function getStepStatus(stepKey: AgentPhase, currentPhase: AgentPhase): 'pending' | 'active' | 'done' | 'error' {

@@ -1,4 +1,4 @@
-from typing import TypedDict, List, Optional, Any
+from typing import TypedDict, List, Optional, Any, AsyncGenerator, Dict
 from langgraph.graph import StateGraph, END
 from langchain_core.documents import Document
 
@@ -104,7 +104,10 @@ class AgenticLoop:
             "iterations": state["iterations"] + 1
         }
         
-    def run(self, query: str) -> AgentState:
+    async def arun_stream(self, query: str) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Executes the agentic loop asynchronously, yielding state updates after each node.
+        """
         initial_state = {
             "original_query": query,
             "current_query": query,
@@ -114,5 +117,25 @@ class AgenticLoop:
             "status": None,
             "iterations": 1
         }
-        # Adding a bit to recursion limit to account for internal node transitions
-        return self.app.invoke(initial_state, {"recursion_limit": self.max_iterations * 3 + 2})
+        
+        # Human-readable mapping of LangGraph nodes to UI phases
+        node_to_phase = {
+            "route_query": "routing",
+            "retrieve_docs": "retrieving",
+            "evaluate_docs": "evaluating",
+            "rewrite_query": "rewriting"
+        }
+
+        async for event in self.app.astream(
+            initial_state, 
+            {"recursion_limit": self.max_iterations * 3 + 2},
+            stream_mode="updates"
+        ):
+            # 'event' is a dict: {node_name: {state_updates}}
+            for node_name, state_update in event.items():
+                phase = node_to_phase.get(node_name)
+                if phase:
+                    yield {"type": "phase", "content": phase}
+                
+                # If we have the final state or transition updates, we yield them
+                yield {"type": "state_update", "node": node_name, "update": state_update}

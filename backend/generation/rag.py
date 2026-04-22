@@ -45,18 +45,31 @@ class RAGPipeline:
             except Exception as e:
                 logger.error(f"Redis cache read error: {e}")
         
+        retrieved_docs = []
+        final_route = "docs_search"
+        
         try:
-            agent_state = self.agentic_loop.run(query)
-            retrieved_docs = agent_state.get("documents", [])
-            route = agent_state.get("route", "docs_search")
+            # Consume the agentic loop stream and yield status phases
+            async for update in self.agentic_loop.arun_stream(query):
+                if update["type"] == "phase":
+                    logger.info(f"Agent Phase: {update['content']}")
+                    yield json.dumps({"type": "phase", "content": update["content"]})
+                
+                # Accumulate the final state (documents and route)
+                if update["type"] == "state_update":
+                    node_update = update["update"]
+                    if "documents" in node_update:
+                        retrieved_docs = node_update["documents"]
+                    if "route" in node_update:
+                        final_route = node_update["route"]
             
-            if route == "general":
+            if final_route == "general":
                 logger.info("Query routed as 'general'. Bypassing retrieved documents.")
                 retrieved_docs = []
                 
         except Exception as e:
             logger.error(f"Error during agentic loop execution: {e}")
-            yield json.dumps({"type": "error", "content": "Failed to retrieve context."})
+            yield json.dumps({"type": "error", "content": f"Retrieval error: {str(e)}"})
             return
 
         # Stream Response via Generator
