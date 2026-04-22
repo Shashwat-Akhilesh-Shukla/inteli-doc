@@ -8,7 +8,7 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 const BASE_RECONNECT_DELAY_MS = 1000;
 
 interface UseWebSocketReturn {
-  sendQuery: (query: string) => void;
+  sendQuery: (query: string, history: Message[]) => void;
   connectionStatus: ConnectionStatus;
   streamingContent: string;
   metadata: Record<string, CitationMeta> | null;
@@ -117,7 +117,7 @@ export function useWebSocket(): UseWebSocketReturn {
     wsRef.current = ws;
   }, []);
 
-  const sendQuery = useCallback((query: string) => {
+  const sendQuery = useCallback((query: string, history: Message[]) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       setError('Not connected to the server. Please wait and try again.');
       return;
@@ -132,7 +132,16 @@ export function useWebSocket(): UseWebSocketReturn {
     // Set an initial starting phase
     setAgentPhase('routing');
 
-    wsRef.current.send(query);
+    // Send payload as JSON
+    const payload = {
+      query,
+      history: history.map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+    };
+
+    wsRef.current.send(JSON.stringify(payload));
   }, []);
 
   // Auto-connect on mount

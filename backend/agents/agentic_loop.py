@@ -18,6 +18,7 @@ class AgentState(TypedDict):
     feedback: Optional[str]
     status: Optional[str]
     iterations: int
+    history: List[Dict[str, str]]
 
 class AgenticLoop:
     def __init__(self, max_iterations: int = 3):
@@ -63,7 +64,7 @@ class AgenticLoop:
         self.app = workflow.compile()
 
     def route_node(self, state: AgentState) -> dict:
-        route = self.router.route_query(state["current_query"])
+        route = self.router.route_query(state["current_query"], history=state.get("history", []))
         return {"route": route}
         
     def route_condition(self, state: AgentState) -> str:
@@ -104,9 +105,10 @@ class AgenticLoop:
             "iterations": state["iterations"] + 1
         }
         
-    async def arun_stream(self, query: str) -> AsyncGenerator[Dict[str, Any], None]:
+    async def arun_stream(self, query: str, history: List[Dict[str, str]] = None) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Executes the agentic loop asynchronously, yielding state updates after each node.
+        Now preserves and utilizes conversation history.
         """
         initial_state = {
             "original_query": query,
@@ -115,7 +117,8 @@ class AgenticLoop:
             "documents": [],
             "feedback": None,
             "status": None,
-            "iterations": 1
+            "iterations": 1,
+            "history": history or []
         }
         
         # Human-readable mapping of LangGraph nodes to UI phases

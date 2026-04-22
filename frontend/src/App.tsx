@@ -167,12 +167,15 @@ function App() {
       isStreaming: true,
     };
 
+    // Capture context history before updating state
+    const history = messages.filter(m => m.content && !m.isStreaming);
+
     activeAssistantIdRef.current = assistantMsg.id;
     setMessages(prev => [...prev, userMsg, assistantMsg]);
 
     resetStream();
-    sendQuery(text);
-  }, [sendQuery, resetStream]);
+    sendQuery(text, history);
+  }, [sendQuery, resetStream, messages]);
 
   const handleSuggestion = (text: string) => {
     handleSend(text);

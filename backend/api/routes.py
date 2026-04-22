@@ -27,12 +27,15 @@ async def websocket_chat(websocket: WebSocket):
     
     try:
         while True:
-            # Wait for client to send a query
-            query = await websocket.receive_text()
-            logger.info(f"WS received query: {query}")
+            # Wait for client to send a query JSON: { "query": "...", "history": [...] }
+            data = await websocket.receive_json()
+            query = data.get("query")
+            history = data.get("history", [])
+            
+            logger.info(f"WS received query: {query} with {len(history)} history messages.")
             
             # Start streaming the RAG LLM pipeline tokens
-            async for chunk in rag_pipeline.aquery_stream(query):
+            async for chunk in rag_pipeline.aquery_stream(query, history=history):
                 await websocket.send_text(chunk)
                 
     except WebSocketDisconnect:

@@ -1,7 +1,7 @@
 import os
 from typing import AsyncGenerator, Dict, Any, List
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_core.documents import Document
 
 from backend.generation.prompts import SYSTEM_PROMPT_TEMPLATE
@@ -31,10 +31,11 @@ class ResponseGenerator:
 
         return formatted_context, context_metadata
 
-    async def generate_stream(self, query: str, documents: List[Document]) -> AsyncGenerator[Dict[str, Any], None]:
+    async def generate_stream(self, query: str, documents: List[Document], history: List[Dict[str, str]] = None) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Asynchronously yields response tokens and finally yields the context metadata
         for precise UI citations. Yields dictionaries formatted for WebSocket/Streaming outputs.
+        Now supports multi-turn conversation.
         """
         logger.info(f"Starting response generation stream for query: '{query}'")
         
@@ -47,10 +48,17 @@ class ResponseGenerator:
         context_text, context_metadata = self._format_context(documents)
         
         system_content = SYSTEM_PROMPT_TEMPLATE.format(context_text=context_text)
-        messages = [
-            SystemMessage(content=system_content),
-            HumanMessage(content=query)
-        ]
+        
+        # Build message list with history
+        messages = [SystemMessage(content=system_content)]
+        if history:
+            for m in history:
+                if m["role"] == "user":
+                    messages.append(HumanMessage(content=m["content"]))
+                elif m["role"] == "assistant":
+                    messages.append(AIMessage(content=m["content"]))
+        
+        messages.append(HumanMessage(content=query))
         
         # Stream response
         try:
