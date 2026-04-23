@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# 🖥️ Intelligent Doc Navigator - Frontend
+**Premium Glassmorphic UI for Agentic RAG**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend of the Intelligent Documentation Navigator is a high-performance React application built with **Vite** and **TypeScript**. It features a modern, "glassmorphic" design language with real-time WebSocket streaming and interactive state tracking.
 
-Currently, two official plugins are available:
+## ✨ UI Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Live Thought Process:** A dedicated sidebar/dashboard that maps the backend agent's state machine (Routing → Retrieving → Evaluating → Generating) in real-time.
+- **Asynchronous Token Streaming:** Responses are rendered word-by-word as they arrive from the LLM, providing a smooth, zero-latency feel.
+- **Interactive Citations:** Hover over source chips to see exact document references and context snippets.
+- **Glassmorphic Aesthetic:** Deep translucent backgrounds, subtle borders, and fluid micro-animations using pure CSS.
 
-## React Compiler
+## 🚀 Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+- Node.js `v20+`
+- `npm` or `yarn`
 
-## Expanding the ESLint configuration
+### Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3. **Build for production:**
+   ```bash
+   npm run build
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🏗️ Architecture
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **React 19:** Leveraging the latest features for UI state management.
+- **Vite:** Blazing fast builds and Hot Module Replacement (HMR).
+- **WebSockets:** Native HTML5 WebSocket API used for bi-directional streaming.
+- **CSS Modules:** Scoped, maintainable styles with a focus on custom properties (CSS variables).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📂 Key Components
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `App.tsx`: Main layout and message orchestration.
+- `useWebSocket.ts`: Custom hook for managing the socket lifecycle and message buffering.
+- `ThoughtProcess/`: Components for visualizing the agentic loop phases.
+- `ChatMessage/`: Renders LLM responses with markdown and citations.
+
+## 🎨 Styling Philosophy
+
+We avoid utility-first frameworks like Tailwind in favor of **Vanilla CSS** to achieve a highly bespoke, premium look. Global tokens are defined in `src/index.css`.
+
+---
+
+<sub>Part of the Intelligent Documentation Navigator ecosystem.</sub>

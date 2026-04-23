@@ -50,6 +50,14 @@ graph TD
     Generator --> |Stream Tokens| Gateway
 ```
 
+### Agentic Loop Components
+
+- **Topic Router:** Identifies the intent of the query. If it's "Small Talk," it bypasses retrieval. If it's "Docs Search," it triggers the hybrid pipeline.
+- **Hybrid RRF Retriever:** Performs parallel searches in Qdrant (semantic) and Whoosh (keyword) and merges them using Reciprocal Rank Fusion.
+- **Cross-Encoder Re-ranker:** A second-stage model that scores the top RRF results for precise relevance.
+- **Context Evaluator:** A reasoning step that determines if the retrieved chunks actually answer the query.
+- **Query Rewriter:** If context is insufficient, this node uses the LLM to hallucinate better search terms and retries the loop.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -96,20 +104,47 @@ graph TD
 
 3. **Configure Environment Variables:**
    Create a `.env` file in the root directory:
-   ```env
-   ENVIRONMENT=development
-   OPENAI_API_KEY=your_openai_api_key_here
-   QDRANT_URL=http://localhost:6333
-   REASONING_MODEL=gpt-4o-mini
-   GENERATION_MODEL=gpt-4o
-   ```
+    ```env
+    ENVIRONMENT=development
+    OPENAI_API_KEY=your_openai_api_key_here
+    QDRANT_URL=http://localhost:6333
+    REASONING_MODEL=gpt-4o-mini
+    GENERATION_MODEL=gpt-4o
+    REDIS_HOST=localhost
+    ```
+
+#### Environment Variables Detail
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | Your OpenAI API key (Required) | - |
+| `QDRANT_URL` | URL for the Qdrant vector database | `http://localhost:6333` |
+| `REASONING_MODEL` | LLM used for routing and evaluation | `gpt-4o-mini` |
+| `GENERATION_MODEL` | LLM used for final response synthesis | `gpt-4o` |
+| `REDIS_HOST` | Host for Redis caching | `localhost` |
+| `ENVIRONMENT` | Deployment environment (development/production) | `development` |
 
 4. **Run the API & WebSocket Server:**
    ```bash
-   uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
-   ```
+    uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+    ```
 
-### 2. Launching the Frontend
+### 2. Ingesting Your Documents
+
+Before querying, you must populate the vector and sparse databases with your documentation.
+
+1. **Prepare your data:** Place your PDF, Markdown, or Text files in a directory (e.g., `data/`).
+2. **Run the indexing CLI:**
+   ```bash
+   # Make sure your virtual environment is active
+   python -m backend.indexing.cli --dir ./path/to/your/docs --chunk-size 1000 --chunk-overlap 200
+   ```
+   This will:
+   - Parse files into logical sections.
+   - Generate embeddings and store them in **Qdrant**.
+   - Build a keyword index in **Whoosh**.
+
+### 3. Launching the Frontend
 
 Open a new terminal window to start the Vite UI.
 
@@ -149,6 +184,19 @@ The application will be running at **`http://localhost:5173`**. Due to the Vite 
 ```
 
 ---
+
+## 🛠️ Troubleshooting
+
+- **Qdrant Connection Refused:** Ensure the Docker container is running (`docker ps`). If using a custom port, update `QDRANT_URL` in `.env`.
+- **OpenAI API Quota:** The system defaults to GPT-4o. If you hit rate limits, try switching `REASONING_MODEL` to `gpt-4o-mini`.
+- **No Results Found:** Check if you've run the indexing CLI (`backend/indexing/cli.py`) on your data folder.
+- **ModuleNotFoundError:** Ensure you are running commands from the root directory and your `.venv` is active.
+
+---
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
 
 <div align="center">
   <sub>Built with precision for large-scale documentation architectures.</sub>
